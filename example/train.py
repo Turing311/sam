@@ -9,6 +9,7 @@ from utility.initialize import initialize
 from utility.step_lr import StepLR
 import sys; sys.path.append("..")
 from sam import SAM
+import torch.nn.functional as F
 
 
 if __name__ == "__main__":
@@ -74,7 +75,7 @@ if __name__ == "__main__":
                 inputs, targets = (b.to(device) for b in batch)
 
                 predictions = model(inputs)
-                test_loss += smooth_crossentropy(predictions, targets).item()
+                test_loss += F.nll_loss(predictions, targets, reduction='sum').item()
 
                 pred = predictions.argmax(dim=1, keepdim=True)
                 is_correct = pred.eq(targets.view_as(pred)).sum().item()
