@@ -35,7 +35,7 @@ if __name__ == "__main__":
         batch_size=args.batch_size, shuffle=False)
 
     log = Log(log_each=10)
-    model = LiveModel().to(device)
+    model = LiveModel('live_tof.npy').to(device)
 
     base_optimizer = torch.optim.SGD
     optimizer = SAM(model.parameters(), base_optimizer, rho=args.rho, lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
