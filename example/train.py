@@ -88,6 +88,6 @@ if __name__ == "__main__":
                 best_acc = acc
                 torch.save(model.state_dict(), 'live_tuned_%d_%f.pth' % (epoch, acc))
 
-            log(model, test_loss, acc.cpu())
+            log(model, test_loss, acc)
 
     log.flush()
