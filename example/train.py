@@ -41,6 +41,7 @@ if __name__ == "__main__":
     optimizer = SAM(model.parameters(), base_optimizer, rho=args.rho, lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
     scheduler = StepLR(optimizer, args.learning_rate, args.epochs)
 
+    best_acc = 0
     for epoch in range(args.epochs):
         model.train()
         log.train(len_dataset=87690)
@@ -64,15 +65,28 @@ if __name__ == "__main__":
                 scheduler(epoch)
 
         model.eval()
-        log.eval(len_dataset=28332)
+        log.eval(len_dataset=len(test_loader.dataset))
 
+        test_loss = 0
+        correct = 0
         with torch.no_grad():
             for batch_idx, batch in enumerate(test_loader):
                 inputs, targets = (b.to(device) for b in batch)
 
                 predictions = model(inputs)
-                loss = smooth_crossentropy(predictions, targets)
-                correct = torch.argmax(predictions, 1) == targets
-                log(model, loss.cpu(), correct.cpu())
+                test_loss += smooth_crossentropy(predictions, targets)
+
+                pred = predictions.argmax(dim=1, keepdim=True)
+                is_correct = pred.eq(targets.view_as(pred)).sum().item()
+                correct += is_correct
+
+            test_loss /= len(test_loader.dataset)
+            acc = 100 * correct / len(test_loader.dataset)
+
+            if acc > best_acc:
+                best_acc = acc
+                torch.save(model.state_dict(), 'live_tuned_%d_%f.pth' % (epoch, acc))
+
+            log(model, test_loss, acc.cpu())
 
     log.flush()
