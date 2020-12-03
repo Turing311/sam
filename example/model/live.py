@@ -20,8 +20,10 @@ def load_weights(weight_file):
 class LiveModel(nn.Module):
 
     
-    def __init__(self):
+    def __init__(self, weight_file):
         super(LiveModel, self).__init__()
+        global _weights_dict
+        _weights_dict = load_weights(weight_file)
 
         self.conv1 = self.__conv(2, name='conv1', in_channels=1, out_channels=8, kernel_size=(5, 5), stride=(1, 1), groups=1, bias=True)
         self.conv2a = self.__conv(2, name='conv2a', in_channels=8, out_channels=12, kernel_size=(1, 1), stride=(1, 1), groups=1, bias=True)
@@ -66,7 +68,7 @@ class LiveModel(nn.Module):
         fc2_0           = relufc1.view(relufc1.size(0), -1)
         fc2_1           = self.fc2_1(fc2_0)
         prov            = F.softmax(fc2_1)
-        return fc2_1
+        return prov
 
 
     @staticmethod
@@ -76,10 +78,16 @@ class LiveModel(nn.Module):
         elif dim == 3:  layer = nn.Conv3d(**kwargs)
         else:           raise NotImplementedError()
 
+        layer.state_dict()['weight'].copy_(torch.from_numpy(_weights_dict[name]['weights']))
+        if 'bias' in _weights_dict[name]:
+            layer.state_dict()['bias'].copy_(torch.from_numpy(_weights_dict[name]['bias']))
         return layer
 
     @staticmethod
     def __dense(name, **kwargs):
         layer = nn.Linear(**kwargs)
+        layer.state_dict()['weight'].copy_(torch.from_numpy(_weights_dict[name]['weights']))
+        if 'bias' in _weights_dict[name]:
+            layer.state_dict()['bias'].copy_(torch.from_numpy(_weights_dict[name]['bias']))
         return layer
 
