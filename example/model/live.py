@@ -63,10 +63,12 @@ class LiveModel(nn.Module):
         pool4_pad       = F.pad(ReLU1_6, (0, 1, 0, 1), value=float('-inf'))
         pool4, pool4_idx = F.max_pool2d(pool4_pad, kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False, return_indices=True)
         fc1_0           = pool4.view(pool4.size(0), -1)
-        fc1_1           = self.fc1_1(fc1_0)
+        fc1_0_drop      = nn.Dropout(0.7)(fc1_0)
+        fc1_1           = self.fc1_1(fc1_0_drop)
         relufc1         = F.relu(fc1_1)
         fc2_0           = relufc1.view(relufc1.size(0), -1)
-        fc2_1           = self.fc2_1(fc2_0)
+        fc2_0_drop      = nn.Dropout(0.6)(fc2_0)
+        fc2_1           = self.fc2_1(fc2_0_drop)
         prov            = F.softmax(fc2_1)
         return prov
 
