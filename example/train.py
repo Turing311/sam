@@ -17,9 +17,9 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", default=128, type=int, help="Batch size used in the training and validation loop.")
     parser.add_argument("--depth", default=16, type=int, help="Number of layers.")
     parser.add_argument("--dropout", default=0.0, type=float, help="Dropout rate.")
-    parser.add_argument("--epochs", default=200, type=int, help="Total number of epochs.")
+    parser.add_argument("--epochs", default=400, type=int, help="Total number of epochs.")
     parser.add_argument("--label_smoothing", default=0.05, type=float, help="Use 0.0 for no label smoothing.")
-    parser.add_argument("--learning_rate", default=0.05, type=float, help="Base learning rate at the start of the training.")
+    parser.add_argument("--learning_rate", default=0.0005, type=float, help="Base learning rate at the start of the training.")
     parser.add_argument("--momentum", default=0.9, type=float, help="SGD Momentum.")
     parser.add_argument("--threads", default=2, type=int, help="Number of CPU threads for dataloaders.")
     parser.add_argument("--rho", default=0.05, type=int, help="Rho parameter for SAM.")
@@ -86,7 +86,8 @@ if __name__ == "__main__":
 
             if acc > best_acc:
                 best_acc = acc
-                torch.save(model.state_dict(), 'live_tuned_%d_%f.pth' % (epoch, acc))
+                if epoch > 30:
+                    torch.save(model.state_dict(), 'live_tuned_%d_%f.pth' % (epoch, acc))
 
             print('Epoch: %d Loss: %f,  Acc: %f, Best_Acc: %f' % (epoch, test_loss, acc, best_acc))
 #            log(model, test_loss, acc)
