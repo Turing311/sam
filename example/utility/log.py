@@ -42,7 +42,7 @@ class Log:
                 flush=True,
             )
 
-        else:
+        elif False:
             loss = self.epoch_state["loss"] / self.epoch_state["steps"]
             accuracy = self.epoch_state["accuracy"] / self.epoch_state["steps"]
 
