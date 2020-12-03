@@ -1,9 +1,9 @@
 import argparse
 import torch
 
-from model.wide_res_net import WideResNet
+from model.live import LiveModel
 from model.smooth_cross_entropy import smooth_crossentropy
-from data.cifar import Cifar
+from data.datalmdb import DataLmdb
 from utility.log import Log
 from utility.initialize import initialize
 from utility.step_lr import StepLR
@@ -13,7 +13,7 @@ from sam import SAM
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--batch_size", default=128, type=int, help="Batch size used in the training and validation loop.")
+    parser.add_argument("--batch_size", default=256, type=int, help="Batch size used in the training and validation loop.")
     parser.add_argument("--depth", default=16, type=int, help="Number of layers.")
     parser.add_argument("--dropout", default=0.0, type=float, help="Dropout rate.")
     parser.add_argument("--epochs", default=200, type=int, help="Total number of epochs.")
@@ -29,9 +29,13 @@ if __name__ == "__main__":
     initialize(args, seed=42)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    dataset = Cifar(args.batch_size, args.threads)
+    train_loader = torch.utils.data.DataLoader(DataLmdb("/kaggle/working/Fake/train", db_size=87690, crop_size=128, flip=True, scale=0.00390625),
+        batch_size=args.batch_size, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(DataLmdb("/kaggle/working/Fake/valid", db_size=28332, crop_size=128, flip=False, scale=0.00390625, random=False),
+        batch_size=args.batch_size, shuffle=False)
+
     log = Log(log_each=10)
-    model = WideResNet(args.depth, args.width_factor, args.dropout, in_channels=3, labels=10).to(device)
+    model = LiveModel().to(device)
 
     base_optimizer = torch.optim.SGD
     optimizer = SAM(model.parameters(), base_optimizer, rho=args.rho, lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
@@ -39,9 +43,9 @@ if __name__ == "__main__":
 
     for epoch in range(args.epochs):
         model.train()
-        log.train(len_dataset=len(dataset.train))
+        log.train(len_dataset=87690)
 
-        for batch in dataset.train:
+        for batch in train_loader:
             inputs, targets = (b.to(device) for b in batch)
 
             # first forward-backward step
@@ -60,10 +64,10 @@ if __name__ == "__main__":
                 scheduler(epoch)
 
         model.eval()
-        log.eval(len_dataset=len(dataset.test))
+        log.eval(len_dataset=28332)
 
         with torch.no_grad():
-            for batch in dataset.test:
+            for batch in test_loader:
                 inputs, targets = (b.to(device) for b in batch)
 
                 predictions = model(inputs)
