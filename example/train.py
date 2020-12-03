@@ -18,7 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("--dropout", default=0.0, type=float, help="Dropout rate.")
     parser.add_argument("--epochs", default=400, type=int, help="Total number of epochs.")
     parser.add_argument("--label_smoothing", default=0.1, type=float, help="Use 0.0 for no label smoothing.")
-    parser.add_argument("--learning_rate", default=0.1, type=float, help="Base learning rate at the start of the training.")
+    parser.add_argument("--learning_rate", default=0.001, type=float, help="Base learning rate at the start of the training.")
     parser.add_argument("--momentum", default=0.9, type=float, help="SGD Momentum.")
     parser.add_argument("--threads", default=2, type=int, help="Number of CPU threads for dataloaders.")
     parser.add_argument("--rho", default=0.05, type=int, help="Rho parameter for SAM.")
