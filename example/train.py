@@ -74,7 +74,7 @@ if __name__ == "__main__":
                 inputs, targets = (b.to(device) for b in batch)
 
                 predictions = model(inputs)
-                test_loss += smooth_crossentropy(predictions, targets)
+                test_loss += smooth_crossentropy(predictions, targets).item()
 
                 pred = predictions.argmax(dim=1, keepdim=True)
                 is_correct = pred.eq(targets.view_as(pred)).sum().item()
