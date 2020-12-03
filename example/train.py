@@ -16,7 +16,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", default=128, type=int, help="Batch size used in the training and validation loop.")
     parser.add_argument("--depth", default=16, type=int, help="Number of layers.")
     parser.add_argument("--dropout", default=0.0, type=float, help="Dropout rate.")
-    parser.add_argument("--epochs", default=200, type=int, help="Total number of epochs.")
+    parser.add_argument("--epochs", default=400, type=int, help="Total number of epochs.")
     parser.add_argument("--label_smoothing", default=0.1, type=float, help="Use 0.0 for no label smoothing.")
     parser.add_argument("--learning_rate", default=0.1, type=float, help="Base learning rate at the start of the training.")
     parser.add_argument("--momentum", default=0.9, type=float, help="SGD Momentum.")
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         model.train()
         log.train(len_dataset=87690)
 
-        for batch in train_loader:
+        for batch_idx, batch in enumerate(train_loader):
             inputs, targets = (b.to(device) for b in batch)
 
             # first forward-backward step
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         log.eval(len_dataset=28332)
 
         with torch.no_grad():
-            for batch in test_loader:
+            for batch_idx, batch in enumerate(test_loader):
                 inputs, targets = (b.to(device) for b in batch)
 
                 predictions = model(inputs)

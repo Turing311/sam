@@ -66,7 +66,7 @@ class LiveModel(nn.Module):
         fc2_0           = relufc1.view(relufc1.size(0), -1)
         fc2_1           = self.fc2_1(fc2_0)
         prov            = F.softmax(fc2_1)
-        return fc2_1
+        return prov
 
 
     @staticmethod
