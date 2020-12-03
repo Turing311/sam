@@ -13,7 +13,7 @@ from sam import SAM
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--batch_size", default=256, type=int, help="Batch size used in the training and validation loop.")
+    parser.add_argument("--batch_size", default=128, type=int, help="Batch size used in the training and validation loop.")
     parser.add_argument("--depth", default=16, type=int, help="Number of layers.")
     parser.add_argument("--dropout", default=0.0, type=float, help="Dropout rate.")
     parser.add_argument("--epochs", default=200, type=int, help="Total number of epochs.")
